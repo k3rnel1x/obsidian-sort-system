@@ -2,7 +2,7 @@ from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
 
-def transformers_get_similarity(word, text, model_name="sentence-transformers/all-MiniLM-L6-v2"):
+def transformers_get_similarity(word : str, text : str, model_name="sentence-transformers/all-MiniLM-L6-v2"):
     # Загружаем модель
     model = SentenceTransformer(model_name)
 
