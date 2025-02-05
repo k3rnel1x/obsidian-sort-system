@@ -1,8 +1,10 @@
 import asyncio
+from time import tzname
 
-from aiogram import Router, F, Bot
+from aiogram import Router, F
 from aiogram.types import Message
-from aiogram.filters import Command, Filter, CommandStart
+from aiogram.filters import Command, CommandStart
+
 
 
 
@@ -18,17 +20,51 @@ async def start_command(message: Message):
     await msg_del.edit_text("Бот работает")
     #TODO create db to save all msg id and del all history in chat exсept first
 
+# обрабатываем все сообщения
 
-@route.message(lambda message: message.text)
+# только текст
+@route.message(F.text)
 async def default_text_message(message: Message):
     msg_text.append(message.text)
     await message.delete()
     #TODO only text
 
 
-@route.message(lambda message: message.photo)
+# только фото
+@route.message(F.photo & ~F.caption)
 async def image(message: Message):
-    await message.bot.download(file=message.photo[-1].file_id, destination="1.png")
+    await message.bot.download(file=message.photo[-1].file_id, destination="onlyimg.png")
+    await message.delete()
+    ... #TODO download do database
+
+
+# текст и фото
+@route.message(F.photo & F.caption)
+async def image(message: Message):
+    await message.bot.download(file=message.photo[-1].file_id,
+                               destination=f"{message.caption}.png")
+    await message.delete()
+    ... #TODO download do database
+
+
+# документ
+@route.message(F.document & ~F.caption)
+async def image(message: Message):
+    filename = message.document.file_name.lower()
+    await message.bot.download(file=message.document.file_id,
+                               destination=filename)
+    await message.delete()
+    ... #TODO download do database
+
+
+
+# документ и текст
+@route.message(F.document & F.caption)
+async def image(message: Message):
+    filename = message.document.file_name.lower()
+    await message.bot.download(file=message.document.file_id,
+                               destination=f"{message.caption}{filename[filename.find("."):]}") #TODO сделать поиск с конца
+    await message.delete()
     ... #TODO download do database
 
 
