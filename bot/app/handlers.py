@@ -7,6 +7,8 @@ from aiogram import Router, F
 from aiogram.types import Message
 from aiogram.filters import Command, CommandStart
 
+from utils import get_index
+
 
 
 
@@ -39,30 +41,22 @@ async def default_text_message(message: Message):
 # только фото
 @route.message(F.photo & ~F.caption)
 async def image(message: Message):
-    if not os.path.isdir(f"bot/data/{str(message.date)[:10]}"):
-        os.mkdir(f"bot/data/{str(message.date)[:10]}")
+    day_path = f"bot/data/{str(message.date)[:10]}" ## TODO: convert to a function
+    if not os.path.isdir(day_path):
+        os.mkdir(day_path) 
     
     
     if len(message.photo) == 1:
-        get_indexes = [int(s[-5]) for s in os.listdir(f"bot/data/{str(message.date)[:10]}")
-            if s[-4:] == ".png" and s[:5] == str(message.date)[11:16]]
-
-        if get_indexes:
-            await message.bot.download(file=message.photo[-1].file_id,
-            destination=f"bot/data/{str(message.date)[:10]}/{str(message.date)[11:16]}-{max(get_indexes)+1}.png")
-        else:
-            await message.bot.download(file=message.photo[-1].file_id,
-            destination=f"bot/data/{str(message.date)[:10]}/{str(message.date)[11:16]}-0.png")
+        index = get_index(day_path, str(message.date)[11:16])
+        
+        
     else:
-        get_indexes = [int(s[-5]) for s in os.listdir(f"bot/data/{str(message.date)[:10]}")
-            if s[-4:] == ".png" and s[:5] == str(message.date)[11:16]]
+        index = get_index()
+        
         for image_idx in range(len(message.photo)):
-            if get_indexes:
-                await message.bot.download(file=message.photo[-1].file_id,
-                destination=f"bot/data/{str(message.date)[:10]}/{str(message.date)[11:16]}-{max(get_indexes)+1}.png")
-            else:
-                await message.bot.download(file=message.photo[-1].file_id,
-                destination=f"bot/data/{str(message.date)[:10]}/{str(message.date)[11:16]}-0.png")
+            photo_index = index + image_idx + 1
+            file = ...
+            message.bot.download(file)
             
     await message.delete()
     ... #TODO download do database 50%  
