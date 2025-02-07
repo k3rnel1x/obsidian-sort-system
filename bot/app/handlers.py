@@ -3,11 +3,14 @@ from time import tzname
 import os
 
 
+
 from aiogram import Router, F
 from aiogram.types import Message
 from aiogram.filters import Command, CommandStart
 
-from utils import get_index
+from .utils import get_index    
+from __init__ import bot
+
 
 
 
@@ -25,6 +28,8 @@ async def start_command(message: Message):
 
 # обрабатываем все сообщения
 
+
+
 # только текст
 @route.message(F.text)
 async def default_text_message(message: Message):
@@ -37,30 +42,61 @@ async def default_text_message(message: Message):
 
 
 
-
-# только фото
+# только 1 фото
 @route.message(F.photo & ~F.caption)
-async def image(message: Message):
-    day_path = f"bot/data/{str(message.date)[:10]}" ## TODO: convert to a function
-    if not os.path.isdir(day_path):
-        os.mkdir(day_path) 
-    
-    
-    if len(message.photo) == 1:
-        index = get_index(day_path, str(message.date)[11:16])
-        
-        
-    else:
-        index = get_index()
-        
-        for image_idx in range(len(message.photo)):
-            photo_index = index + image_idx + 1
-            file = ...
-            message.bot.download(file)
-            
-    await message.delete()
-    ... #TODO download do database 50%  
+async def only_one_image(message: Message):
+    day_path = str(message.date)[:10]
+    time_path = str(message.date)[11:16]
 
+    # print()
+    # print(message.media_group_id)
+    # print()
+
+    # if message.media_group_id:
+    #     print("more than 1 photos")
+    #     index = get_index(day_path, time_path)
+
+    #     album = []
+    #     album.append(message)
+    #     # if len(album) > 1 and album[-1].media_group_id != album[-2].media_group_id:
+    #     for msg in album:
+    #         image = msg.photo
+
+    #         file_extension = await bot.get_file(image[-1].file_id)
+    #         file_extension = file_extension.file_path.split(".")[-1]
+    #         await message.bot.download(file=image[-1].file_id,
+    #                             destination=f"bot/data/{day_path}/{str(message.date)[11:16]}/{index}.{file_extension}.img")
+    #         index += 1    
+    # else:
+    # print("one photo")
+    # create date dir
+    # if not os.path.isdir(f"bot/data/{day_path}"):
+    #     os.mkdir(f"bot/data/{day_path}")
+    # index = get_index(day_path, time_path)  
+
+    # file_extension = await bot.get_file(message.photo[-1].file_id)
+    # file_extension = file_extension.file_path.split(".")[-1]
+
+    # await message.bot.download(file=message.photo[-1].file_id,
+    #                         destination=f"bot/data/{day_path}/{str(message.date)[11:16]}/{index}.{file_extension}.img")    
+    index = get_index(day_path, time_path)
+
+    file_extension = await bot.get_file(message.photo[-1].file_id)
+    file_extension = file_extension.file_path.split(".")[-1]
+    
+    await bot.download(file=message.photo[-1].file_id,
+    destination=f"bot/data/{day_path}/{str(message.date)[11:16]}/{index}.{file_extension}.img")
+    
+    await message.delete()
+    
+    #TODO download do database 
+
+        
+
+
+        
+            
+    
 
 # текст и фото
 @route.message(F.photo & F.caption)
@@ -73,6 +109,8 @@ async def image(message: Message):
     ... #TODO download do database
 
 
+
+
 # документ
 @route.message(F.document & ~F.caption)
 async def image(message: Message):
@@ -83,6 +121,8 @@ async def image(message: Message):
                                destination=filename)
     await message.delete()
     ... #TODO download do database
+
+
 
 
 

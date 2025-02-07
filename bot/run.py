@@ -1,23 +1,17 @@
 import asyncio
 import logging
-import os
+import os, sys, shutil
 
 from aiogram import Bot, Dispatcher
 from dotenv import load_dotenv
 
 from app.handlers import route
-
-# переменные
-load_dotenv()
-TOKEN = os.getenv("TOKEN")
+from __init__ import bot, dp
 
 
-
-# Создаем объекты бота и диспетчера
-bot = Bot(token=TOKEN)
-dp = Dispatcher()
-
-
+sys.path.insert(0, "./")
+shutil.rmtree("bot/data")
+os.mkdir("bot/data")
 
 # Запуск бота
 async def main():
